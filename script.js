@@ -89,8 +89,8 @@ document.getElementById("formulaire").addEventListener("submit", function(e) {
   db.collection("inscriptions").add(data)
     .then(() => {
       alert("✅ Formulaire envoyé avec succès !");
-      document.getElementById("formulaire").reset();
-      location.reload();
+      localStorage.setItem("inscriptionOK", "true");
+window.location.href = "félicitations.html";
     })
     .catch((error) => {
       console.error("Erreur Firebase :", error);
