@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin - Inscriptions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+
+    button {
+      margin-top: 10px;
+    }
+
+    h2 {
+      margin-top: 20px;
+    }
+  </style>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <h1>👮 Tableau des Inscriptions</h1>
+  <div id="auth"></div>
+  
+  <!-- Compteur d'inscrits -->
+  <h2>Total inscrits : <span id="total-inscrits">0</span></h2>
+
+  <div id="liste"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAd5gqzLhq3eJHm1n_kZZGfLqzWQIvSaa4",
+      authDomain: "ich-inscription.firebaseapp.com",
+      projectId: "ich-inscription",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const adminEmails = ["admin1@example.com", "admin2@example.com"];
+
+    function afficherInscriptions() {
+      db.collection("inscriptions").orderBy("date", "desc").get().then((snapshot) => {
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Contact</th>
+                <th>Statut</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        let total = 0;
+
+        snapshot.forEach(doc => {
+          total++;
+          const data = doc.data();
+          const date = data.date?.toDate?.().toLocaleString() || "Non précisée";
+          html += `
+            <tr>
+              <td>${data.nom || "-"}</td>
+              <td>${data.contact || "-"}</td>
+              <td>${data.statut || "-"}</td>
+              <td>${date}</td>
+            </tr>
+          `;
+        });
+
+        html += `</tbody></table>`;
+        document.getElementById("liste").innerHTML = html;
+        document.getElementById("total-inscrits").textContent = total;
+      });
+    }
+
+    auth.onAuthStateChanged((user) => {
+      const authDiv = document.getElementById("auth");
+      if (user) {
+        if (adminEmails.includes(user.email)) {
+          authDiv.innerHTML = `
+            ✅ Connecté en tant que : <strong>${user.email}</strong>
+            <button onclick="firebase.auth().signOut()">Se déconnecter</button>
+          `;
+          afficherInscriptions();
+        } else {
+          authDiv.innerHTML = "⛔ Accès refusé : vous n’êtes pas administrateur.";
+        }
+      } else {
+        const btn = document.createElement("button");
+        btn.textContent = "Se connecter avec Google";
+        btn.onclick = () => {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          auth.signInWithPopup(provider).catch(err => {
+            console.error("Erreur de connexion :", err.message);
+          });
+        };
+        authDiv.appendChild(btn);
+      }
+    });
+  </script>
+</body>
+  </html>
