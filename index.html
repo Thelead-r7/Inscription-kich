@@ -2,62 +2,120 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <title>Avertissement</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inscription Multiphase</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fef6e4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      flex-direction: column;
+    }
+
+    .warning-box {
+      background: #fff3cd;
+      border: 1px solid #ffecb5;
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 400px;
+    }
+
+    .warning-box h2 {
+      color: #856404;
+    }
+
+    .warning-box p {
+      color: #6c757d;
+      font-size: 16px;
+      margin: 20px 0;
+    }
+
+    .warning-box button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .warning-box button:hover {
+      background-color: #218838;
+    }
+
+    /* Barre admin (masquée par défaut) */
+    .admin-bar {
+      display: none;
+      background-color: #343a40;
+      color: white;
+      padding: 10px 20px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .admin-bar a {
+      color: #ffc107;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+
+    .admin-bar a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-  <div class="form-container">
-    <form id="formulaire">
 
-      <!-- ÉTAPE 1 -->
-      <div class="step" id="step1">
-        <h2>Étape 1 : Informations de base</h2>
-        <input type="text" id="nom" placeholder="Nom complet" required>
-        <input type="number" id="age" placeholder="Âge" required>
-        <select id="genre" required>
-          <option value="">-- Genre --</option>
-          <option value="Homme">Homme</option>
-          <option value="Femme">Femme</option>
-        </select>
-        <button type="button" onclick="goToStep(2)">Suivant</button>
-      </div>
-
-      <!-- ÉTAPE 2 -->
-      <div class="step" id="step2" style="display:none;">
-        <h2>Étape 2 : Contact</h2>
-        <input type="text" id="commune" placeholder="Commune" required>
-        <input type="tel" id="contact" placeholder="Contact téléphonique" required>
-        <button type="button" onclick="goToStep(3)">Suivant</button>
-      </div>
-
-      <!-- ÉTAPE 3 -->
-      <div class="step" id="step3" style="display:none;">
-        <h2>Étape 3 : Statut</h2>
-        <select id="statut" required onchange="afficherChamps()">
-          <option value="">-- Sélectionnez votre statut --</option>
-          <option value="élève">Élève</option>
-          <option value="étudiant">Étudiant</option>
-          <option value="autre">Autre</option>
-        </select>
-
-        <div id="etudes" style="display:none;">
-          <input type="text" id="etablissement" placeholder="Établissement scolaire">
-          <input type="text" id="niveau" placeholder="Niveau scolaire">
-        </div>
-
-        <div id="autreDomaine" style="display:none;">
-          <input type="text" id="domaine" placeholder="Domaine d'activité">
-        </div>
-
-        <button type="submit">Envoyer</button>
-      </div>
-
-    </form>
+  <!-- Barre admin -->
+  <div class="admin-bar" id="adminBar">
+    Espace Administrateur :
+    <a href="admin.html">Admin Panel</a>
   </div>
-  <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-<script src="script.js"></script>
+
+  <div class="warning-box">
+    <h2>⚠️ Attention</h2>
+    <p>Merci de remplir ce formulaire avec des informations exactes et honnêtes.<br>Aucune modification ne sera possible après l'envoi.</p>
+    <button onclick="window.location.href='inscription.html'">J'ai compris, continuer</button>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+  <script>
+  // 🔧 Configuration Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyAd5gqzLhq3eJHm1n_kZZGfLqzWQIvSaa4",
+    authDomain: "ich-inscription.firebaseapp.com",
+    projectId: "ich-inscription",
+    storageBucket: "ich-inscription.appspot.com",
+    messagingSenderId: "155306193375",
+    appId: "1:155306193375:web:2b0fb492f87fabaec3d46a",
+    measurementId: "G-ELNVGE77HD"
+  };
+
+  // 🔥 Initialisation
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+
+  // ✅ Liste des UID admins
+  const adminUID = ["LrM3whoWyzgDwM0kvZoj3lfRuS53", "xhNxAUc1ObWSN19qUdLMM9GO0zw1"];
+
+  // ✅ Affichage barre admin si utilisateur autorisé
+  auth.onAuthStateChanged(user => {
+    if (user && adminUID.includes(user.uid)) {
+      document.getElementById("adminBar").style.display = "block";
+    }
+  });
+</script>
+  </script>
 </body>
-                                                             </html>
+                                                                                  </html>
