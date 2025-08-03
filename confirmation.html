@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Confirmation de présence</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background-color: #f0f8ff;
+    }
+    h1 {
+      color: #007BFF;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <h1>Confirmation de présence</h1>
+  <p>Merci de confirmer votre présence pour finaliser votre inscription.</p>
+  <button id="confirmer">Je confirme ma présence</button>
+
+  <script>
+    // Configuration Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAd5gqzLhq3eJHm1n_kZZGfLqzWQIvSaa4",
+  authDomain: "ich-inscription.firebaseapp.com",
+  projectId: "ich-inscription",
+  storageBucket: "ich-inscription.appspot.com",
+  messagingSenderId: "155306193375",
+  appId: "1:155306193375:web:2b0fb492f87fabaec3d46a",
+  measurementId: "G-ELNVGE77HD"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const bouton = document.getElementById("confirmer");
+
+    bouton.addEventListener("click", () => {
+      const docId = localStorage.getItem("inscriptionId");
+
+      if (!docId) {
+        alert("Erreur : Aucune donnée trouvée.");
+        return;
+      }
+
+      db.collection("inscriptions").doc(docId).update({
+        confirmation: true
+      })
+      .then(() => {
+        alert("🎉 Présence confirmée !");
+        window.location.href = "félicitations.html";
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la confirmation :", error);
+        alert("Erreur, impossible de confirmer.");
+      });
+    });
+  </script>
+</body>
+</html>
