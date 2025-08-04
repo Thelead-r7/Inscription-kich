@@ -2,79 +2,120 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Zone Admin</title>
+  <title>Avertissement</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
-    #contenu-admin { display: none; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #fef6e4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      flex-direction: column;
+    }
+
+    .warning-box {
+      background: #fff3cd;
+      border: 1px solid #ffecb5;
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 400px;
+    }
+
+    .warning-box h2 {
+      color: #856404;
+    }
+
+    .warning-box p {
+      color: #6c757d;
+      font-size: 16px;
+      margin: 20px 0;
+    }
+
+    .warning-box button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .warning-box button:hover {
+      background-color: #218838;
+    }
+
+    /* Barre admin (masquée par défaut) */
+    .admin-bar {
+      display: none;
+      background-color: #343a40;
+      color: white;
+      padding: 10px 20px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .admin-bar a {
+      color: #ffc107;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+
+    .admin-bar a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
 
-  <div id="contenu-admin">
-    <h1>👨‍💼 Bienvenue Admin</h1>
-    <button onclick="chargerFormulaire()">Charger Formulaire sans cache</button>
-    <div id="liste-inscriptions"></div>
+  <!-- Barre admin -->
+  <div class="admin-bar" id="adminBar">
+    Espace Administrateur :
+    <a href="admin.html">Admin Panel</a>
   </div>
 
-  <p id="message"></p>
+  <div class="warning-box">
+    <h2>⚠️ Attention</h2>
+    <p>Merci de remplir ce formulaire avec des informations exactes et honnêtes.<br>Aucune modification ne sera possible après l'envoi.</p>
+    <button onclick="window.location.href='inscription.html'">J'ai compris, continuer</button>
+  </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
   <script>
-    // Configuration Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyAd5gqzLhq3eJHm1n_kZZGfLqzWQIvSaa4",
-      authDomain: "ich-inscription.firebaseapp.com",
-      projectId: "ich-inscription",
-      storageBucket: "ich-inscription.appspot.com",
-      messagingSenderId: "155306193375",
-      appId: "1:155306193375:web:2b0fb492f87fabaec3d46a"
-    };
+  // 🔧 Configuration Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyAd5gqzLhq3eJHm1n_kZZGfLqzWQIvSaa4",
+    authDomain: "ich-inscription.firebaseapp.com",
+    projectId: "ich-inscription",
+    storageBucket: "ich-inscription.appspot.com",
+    messagingSenderId: "155306193375",
+    appId: "1:155306193375:web:2b0fb492f87fabaec3d46a",
+    measurementId: "G-ELNVGE77HD"
+  };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
+  // 🔥 Initialisation
+  firebase.initializeApp(firebaseConfig);
 
-    // UID autorisé
-    const UID_ADMIN = "LrM3whoWyzgDwM0kvZoj3lfRuS53"; // remplace par ton UID Firebase réel
+  const auth = firebase.auth();
 
-    // Connexion automatique pour test (à remplacer par vraie auth)
-    auth.onAuthStateChanged(user => {
-      if (user && user.uid === LrM3whoWyzgDwM0kvZoj3lfRuS53) {
-        document.getElementById("contenu-admin").style.display = "block";
-        document.getElementById("message").style.display = "none";
-        chargerInscriptions();
-      } else {
-        document.getElementById("message").innerText = "⛔ Accès refusé. Administrateur requis.";
-      }
-    });
+  // ✅ Liste des UID admins
+  const adminUID = ["LrM3whoWyzgDwM0kvZoj3lfRuS53", "xhNxAUc1ObWSN19qUdLMM9GO0zw1"];
 
-    // Fonction pour afficher les inscriptions
-    function chargerInscriptions() {
-      db.collection("inscriptions").orderBy("date", "desc").get().then(snapshot => {
-        const liste = document.getElementById("liste-inscriptions");
-        snapshot.forEach(doc => {
-          const d = doc.data();
-          const div = document.createElement("div");
-          div.innerHTML = `
-            <hr>
-            <strong>Nom :</strong> ${d.nom}<br>
-            <strong>Commune :</strong> ${d.commune}<br>
-            <strong>Contact :</strong> ${d.contact}<br>
-          `;
-          liste.appendChild(div);
-        });
-      });
+  // ✅ Affichage barre admin si utilisateur autorisé
+  auth.onAuthStateChanged(user => {
+    if (user && adminUID.includes(user.uid)) {
+      document.getElementById("adminBar").style.display = "block";
     }
-
-    // Charger inscription.html sans cache
-    function chargerFormulaire() {
-      window.location.href = "inscription.html?noCache=" + new Date().getTime();
-    }
+  });
+</script>
   </script>
 </body>
-</html>
+      </html>
